@@ -30,6 +30,10 @@
   .sw.active { border-color: #fff; outline: 2px solid #00e5ff; outline-offset: 2px; }
   .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
   .pill { background: rgba(20,20,23,.85); color: #f2f2f0; border: 1px solid #2c2c31; font-size: 15px; font-weight: 700; padding: 12px 16px; border-radius: 999px; cursor: pointer; }
+  .pill.active { background: #f2f2f0; color: #0a0a0c; border-color: #f2f2f0; }
+  .opt-label { font-size: 12px; font-weight: 800; letter-spacing: .12em; color: #9a9aa2; text-transform: uppercase; margin-top: 4px; }
+  .texto-propio { display: none; width: 100%; background: rgba(20,20,23,.85); color: #f2f2f0; border: 1px solid #2c2c31; border-radius: 12px; padding: 12px 14px; font-size: 15px; }
+  .texto-propio.show { display: block; }
   .cta { background: #f2f2f0; color: #0a0a0c; font-weight: 800; font-size: 16px; padding: 14px 22px; border-radius: 999px; text-align: center; }
   .status { font-size: 13px; color: #9a9aa2; }
   section { padding: 52px 20px; max-width: 720px; margin: 0 auto; }
@@ -73,7 +77,7 @@
 </script>
 </head>
 <body>
-<!-- movil-v1.3 windbreaker-3d-v2 logo-v2 whatsapp-v1 -->
+<!-- movil-v1.3 windbreaker-3d-v2 logo-v2 whatsapp-v1 personaliza-v1 -->
 <header>
   <img class="brand-logo" src="logo.png" alt="Mafia Fashion AV">
   <a class="btn-wa" href="https://wa.me/573102180405?text=Hola%20Mafia%20Fashion%20AV%2C%20quiero%20armar%20mi%20hoodie%20personalizado">WhatsApp</a>
@@ -88,11 +92,16 @@
   </div>
   <div class="hero-controls">
     <div class="swatches" id="swatches"></div>
+    <div class="opt-label">Talla</div>
+    <div class="row" id="tallas"></div>
+    <div class="opt-label">Estampado</div>
+    <div class="row" id="estampados"></div>
+    <input class="texto-propio" id="texto-propio" type="text" maxlength="30" placeholder="Escribe tu texto..." autocomplete="off">
     <div class="row">
       <button class="pill" id="btn-girar">Girar: ON</button>
       <button class="pill" id="btn-sonido">Sonido: ON</button>
     </div>
-    <a class="cta" href="https://wa.me/573102180405?text=Hola%20Mafia%20Fashion%20AV%2C%20quiero%20armar%20mi%20hoodie%20personalizado">Pedir por WhatsApp</a>
+    <a class="cta" id="cta-hero" href="https://wa.me/573102180405?text=Hola%20Mafia%20Fashion%20AV%2C%20quiero%20armar%20mi%20hoodie%20personalizado">Pedir por WhatsApp</a>
     <div class="status" id="status">Cargando el hoodie…</div>
   </div>
 </div>
@@ -105,7 +114,7 @@
     <div class="card">
       <h3>Hoodie oversized</h3>
       <span class="badge">El hero · Personalízalo arriba</span>
-      <p>Felpa gruesa premium, bolsillo canguro, capucha con cordones, puños y bajo acanalados. Elige el color en el visor 3D y confirma talla y detalles por WhatsApp.</p>
+      <p>Felpa gruesa premium, bolsillo canguro, capucha con cordones, puños y bajo acanalados. Elige color, talla, estampado y texto en el visor 3D; el pedido llega completo por WhatsApp.</p>
       <a class="cta" href="https://wa.me/573102180405?text=Hola%20Mafia%20Fashion%20AV%2C%20me%20interesa%20el%20hoodie%20oversized%20personalizable">Pedir el hoodie</a>
     </div>
     <div class="card">
@@ -123,8 +132,8 @@
   <div class="tag">Personaliza</div>
   <h2>Así se arma la tuya</h2>
   <div class="steps">
-    <div class="step"><div class="num">1</div><p><strong>Gira y elige el color.</strong> El visor 3D del hero te muestra el hoodie tal cual se va a ver.</p></div>
-    <div class="step"><div class="num">2</div><p><strong>Confirma por WhatsApp.</strong> Talla, detalles y estampado se acuerdan contigo antes de confeccionar.</p></div>
+    <div class="step"><div class="num">1</div><p><strong>Elige color, talla y estampado.</strong> El visor 3D del hero te muestra el hoodie tal cual se va a ver.</p></div>
+    <div class="step"><div class="num">2</div><p><strong>Pídelo por WhatsApp.</strong> Tu mensaje ya lleva todo lo elegido; solo confirmas antes de confeccionar.</p></div>
     <div class="step"><div class="num">3</div><p><strong>Se hace a medida.</strong> Cada prenda se confecciona desde cero, con buenos materiales, solo para ti.</p></div>
   </div>
 </section>
@@ -271,6 +280,8 @@ COLORS.forEach(([name, hex], i) => {
     document.querySelectorAll('.sw').forEach((el) => el.classList.remove('active'));
     b.classList.add('active');
     modelMats.forEach((m) => m.color.set(hex));
+    selectedColor = name;
+    updateCTA();
     blip();
   });
   swWrap.appendChild(b);
@@ -290,6 +301,47 @@ btnSonido.addEventListener('click', () => {
   btnSonido.textContent = 'Sonido: ' + (muted ? 'OFF' : 'ON');
   if (!muted) blip();
 });
+
+// Personalización: talla, estampado y texto propio viajan en el mensaje de WhatsApp
+const ctaHero = document.getElementById('cta-hero');
+let selectedColor = 'Negro';
+let selectedTalla = '';
+let selectedEstampado = 'Sin estampado';
+function estampadoMsg() {
+  if (selectedEstampado === 'Texto propio') {
+    const t = document.getElementById('texto-propio').value.trim();
+    return t ? 'estampado texto propio: "' + t + '"' : 'estampado texto propio (por escribir)';
+  }
+  if (selectedEstampado === 'Sin estampado') return 'sin estampado';
+  return 'estampado ' + selectedEstampado.charAt(0).toLowerCase() + selectedEstampado.slice(1);
+}
+function updateCTA() {
+  const msg = 'Hola Mafia Fashion AV, quiero armar mi hoodie personalizado: color ' + selectedColor + ', talla ' + (selectedTalla || 'por confirmar') + ', ' + estampadoMsg() + '.';
+  ctaHero.href = 'https://wa.me/573102180405?text=' + encodeURIComponent(msg);
+}
+function pillGroup(wrapId, values, initial, onPick) {
+  const wrap = document.getElementById(wrapId);
+  values.forEach((v) => {
+    const b = document.createElement('button');
+    b.className = 'pill' + (v === initial ? ' active' : '');
+    b.textContent = v;
+    b.addEventListener('click', () => {
+      wrap.querySelectorAll('.pill').forEach((el) => el.classList.remove('active'));
+      b.classList.add('active');
+      onPick(v);
+      blip();
+    });
+    wrap.appendChild(b);
+  });
+}
+pillGroup('tallas', ['S', 'M', 'L', 'XL'], '', (v) => { selectedTalla = v; updateCTA(); });
+pillGroup('estampados', ['Sin estampado', 'Logo AV en el pecho', 'Logo AV en la espalda', 'Texto propio'], 'Sin estampado', (v) => {
+  selectedEstampado = v;
+  document.getElementById('texto-propio').classList.toggle('show', v === 'Texto propio');
+  updateCTA();
+});
+document.getElementById('texto-propio').addEventListener('input', updateCTA);
+updateCTA();
 
 // El hoodie real se sirve junto a esta página (misma carpeta en GitHub Pages)
 const loader = new GLTFLoader();
