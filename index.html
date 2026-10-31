@@ -40,6 +40,9 @@
   .card h3 { font-size: 20px; }
   .card p { margin-top: 8px; font-size: 15px; line-height: 1.55; color: #cfcfd4; }
   .card .cta { display: block; margin-top: 16px; }
+  .mini-stage { height: 260px; margin-top: 16px; border-radius: 12px; overflow: hidden; background: #0a0a0c; }
+  .mini-stage canvas { display: block; width: 100%; height: 100%; }
+  .card .status { margin-top: 10px; }
   .badge { display: inline-block; margin-top: 12px; font-size: 12px; font-weight: 800; letter-spacing: .12em; color: #ff2ea6; text-transform: uppercase; }
   .steps { display: grid; gap: 16px; margin-top: 22px; }
   .step { display: flex; gap: 14px; background: #141417; border: 1px solid #26262b; border-radius: 16px; padding: 18px; }
@@ -57,6 +60,7 @@
     section { padding: 44px 18px; }
     .card { padding: 18px; }
     footer { padding: 24px 18px 32px; }
+    .mini-stage { height: 220px; }
   }
 </style>
 <script type="importmap">
@@ -67,7 +71,7 @@
 </script>
 </head>
 <body>
-<!-- movil-v1.3 -->
+<!-- movil-v1.3 windbreaker-3d-v1 -->
 <header>
   <div class="brand">MAFIA FASHION <span class="av-c">A</span><span class="av-m">V</span></div>
   <a class="btn-wa" href="https://wa.me/573028454678?text=Hola%20Mafia%20Fashion%20AV%2C%20quiero%20armar%20mi%20hoodie%20personalizado">WhatsApp</a>
@@ -104,8 +108,10 @@
     </div>
     <div class="card">
       <h3>Windbreaker</h3>
-      <span class="badge">Segundo producto</span>
-      <p>Chaqueta ligera urbana, también a medida y personalizable. Pronto estará en 3D aquí mismo; por ahora se pide directo por WhatsApp.</p>
+      <span class="badge">Segundo producto · En 3D</span>
+      <div id="stage-wind" class="mini-stage"></div>
+      <div class="status" id="status-wind">La windbreaker 3D se carga al llegar a esta sección.</div>
+      <p>Chaqueta ligera urbana, también a medida y personalizable. Gírala en el visor y pídela por WhatsApp.</p>
       <a class="cta" href="https://wa.me/573028454678?text=Hola%20Mafia%20Fashion%20AV%2C%20me%20interesa%20la%20windbreaker">Pedir la windbreaker</a>
     </div>
   </div>
@@ -293,16 +299,88 @@ loader.load('hoodie.glb', (gltf) => {
   statusEl.textContent = 'No se pudo cargar el hoodie. Revisa tu conexión y recarga.';
 });
 
+// Segundo visor 3D: la windbreaker, en su tarjeta de Prendas (carga solo al verse)
+const stageWind = document.getElementById('stage-wind');
+const statusWind = document.getElementById('status-wind');
+const renderer2 = new THREE.WebGLRenderer({ antialias: true });
+renderer2.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer2.setSize(stageWind.clientWidth, stageWind.clientHeight);
+renderer2.toneMapping = THREE.ACESFilmicToneMapping;
+renderer2.toneMappingExposure = 1.05;
+stageWind.appendChild(renderer2.domElement);
+renderer2.domElement.style.touchAction = 'pan-y';
+const scene2 = new THREE.Scene();
+scene2.background = new THREE.Color(0x0a0a0c);
+const pmrem2 = new THREE.PMREMGenerator(renderer2);
+scene2.environment = pmrem2.fromScene(new RoomEnvironment(), 0.04).texture;
+const camera2 = new THREE.PerspectiveCamera(35, stageWind.clientWidth / stageWind.clientHeight, 0.1, 100);
+camera2.position.set(2.5, 1.5, 3.5);
+const controls2 = new OrbitControls(camera2, renderer2.domElement);
+controls2.enableDamping = true;
+controls2.dampingFactor = 0.08;
+controls2.autoRotate = true;
+controls2.autoRotateSpeed = 1.2;
+controls2.minDistance = 0.8;
+controls2.maxDistance = 8;
+const sun2 = new THREE.DirectionalLight(0xffffff, 2.2);
+sun2.position.set(3, 5, 2);
+scene2.add(sun2);
+const cyan2 = new THREE.PointLight(0x00e5ff, 12, 10);
+cyan2.position.set(-2.5, 1.5, 2);
+scene2.add(cyan2);
+const magenta2 = new THREE.PointLight(0xff2ea6, 12, 10);
+magenta2.position.set(2.5, 1, -2);
+scene2.add(magenta2);
+let windReady = false;
+function installWind(model) {
+  const box = new THREE.Box3().setFromObject(model);
+  const size = box.getSize(new THREE.Vector3());
+  const center = box.getCenter(new THREE.Vector3());
+  model.position.x -= center.x;
+  model.position.z -= center.z;
+  model.position.y -= box.min.y;
+  scene2.add(model);
+  const maxDim = Math.max(size.x, size.y, size.z);
+  const dist = maxDim * (stageWind.clientWidth < 500 ? 2.25 : 1.9);
+  camera2.position.set(dist * 0.35, maxDim * 0.95, dist);
+  controls2.target.set(0, size.y * 0.50, 0);
+  controls2.update();
+  windReady = true;
+  statusWind.textContent = 'Windbreaker en 3D. Arrástrala para girarla.';
+}
+controls2.addEventListener('start', () => { if (controls2.autoRotate) controls2.autoRotate = false; });
+let windLoading = false;
+function loadWind() {
+  if (windLoading) return;
+  windLoading = true;
+  statusWind.textContent = 'Cargando la windbreaker…';
+  new GLTFLoader().load('windbreaker.glb', (gltf) => installWind(gltf.scene), undefined, () => {
+    statusWind.textContent = 'No se pudo cargar la windbreaker. Revisa tu conexión y recarga.';
+  });
+}
+if ('IntersectionObserver' in window) {
+  new IntersectionObserver((entries, obs) => {
+    if (entries[0].isIntersecting) { loadWind(); obs.disconnect(); }
+  }, { rootMargin: '200px' }).observe(stageWind);
+} else { loadWind(); }
+
 function updateSize() {
   camera.aspect = stage.clientWidth / stage.clientHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(stage.clientWidth, stage.clientHeight);
+  camera2.aspect = stageWind.clientWidth / stageWind.clientHeight;
+  camera2.updateProjectionMatrix();
+  renderer2.setSize(stageWind.clientWidth, stageWind.clientHeight);
 }
 window.addEventListener('resize', updateSize);
 (function animate() {
   requestAnimationFrame(animate);
   controls.update();
   renderer.render(scene, camera);
+  if (windReady) {
+    controls2.update();
+    renderer2.render(scene2, camera2);
+  }
 })();
 </script>
 </body>
