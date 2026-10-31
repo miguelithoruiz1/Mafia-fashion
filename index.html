@@ -14,7 +14,7 @@
   .brand .av-c { color: #00e5ff; }
   .brand .av-m { color: #ff2ea6; }
   .btn-wa { background: #f2f2f0; color: #0a0a0c; font-weight: 800; font-size: 14px; padding: 10px 16px; border-radius: 999px; white-space: nowrap; }
-  .hero { position: relative; height: 100svh; min-height: 560px; overflow: hidden; }
+  .hero { position: relative; height: 100dvh; min-height: 560px; overflow: hidden; }
   #stage { position: absolute; inset: 0; }
   #stage canvas { display: block; width: 100%; height: 100%; }
   .hero-copy { position: absolute; top: 18px; left: 20px; right: 20px; pointer-events: none; }
@@ -23,12 +23,12 @@
   .hero-copy h1 .m { color: #ff2ea6; }
   .hero-copy p { margin-top: 12px; font-size: 16px; line-height: 1.45; color: #cfcfd4; max-width: 34ch; text-shadow: 0 1px 12px rgba(0,0,0,.8); }
   .hero-copy .hint { margin-top: 8px; font-size: 13px; color: #9a9aa2; }
-  .hero-controls { position: absolute; left: 20px; right: 20px; bottom: 18px; display: flex; flex-direction: column; gap: 12px; }
-  .swatches { display: flex; gap: 10px; flex-wrap: wrap; }
-  .sw { width: 42px; height: 42px; border-radius: 50%; border: 2px solid rgba(255,255,255,.25); cursor: pointer; padding: 0; }
+  .hero-controls { position: absolute; left: 20px; right: 20px; bottom: calc(14px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 10px; }
+  .swatches { display: flex; gap: 8px; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; }
+  .sw { width: 36px; height: 36px; flex: 0 0 auto; border-radius: 50%; border: 2px solid rgba(255,255,255,.25); cursor: pointer; padding: 0; }
   .sw.active { border-color: #fff; outline: 2px solid #00e5ff; outline-offset: 2px; }
   .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-  .pill { background: rgba(20,20,23,.85); color: #f2f2f0; border: 1px solid #2c2c31; font-size: 15px; font-weight: 700; padding: 11px 18px; border-radius: 999px; cursor: pointer; }
+  .pill { background: rgba(20,20,23,.85); color: #f2f2f0; border: 1px solid #2c2c31; font-size: 15px; font-weight: 700; padding: 12px 16px; border-radius: 999px; cursor: pointer; }
   .cta { background: #f2f2f0; color: #0a0a0c; font-weight: 800; font-size: 16px; padding: 14px 22px; border-radius: 999px; text-align: center; }
   .status { font-size: 13px; color: #9a9aa2; }
   section { padding: 52px 20px; max-width: 720px; margin: 0 auto; }
@@ -48,6 +48,16 @@
   .step strong { color: #f2f2f0; }
   .big-cta { display: block; text-align: center; margin-top: 22px; }
   footer { padding: 28px 20px 40px; text-align: center; font-size: 13px; color: #9a9aa2; border-top: 1px solid #1e1e22; }
+  @media (max-width: 400px) {
+    header { padding: 12px 14px; }
+    .brand { font-size: 13px; letter-spacing: .14em; }
+    .btn-wa { padding: 8px 12px; font-size: 13px; }
+  }
+  @media (max-width: 480px) {
+    section { padding: 44px 18px; }
+    .card { padding: 18px; }
+    footer { padding: 24px 18px 32px; }
+  }
 </style>
 <script type="importmap">
 { "imports": {
@@ -57,6 +67,7 @@
 </script>
 </head>
 <body>
+<!-- movil-v1.2 -->
 <header>
   <div class="brand">MAFIA FASHION <span class="av-c">A</span><span class="av-m">V</span></div>
   <a class="btn-wa" href="https://wa.me/573028454678?text=Hola%20Mafia%20Fashion%20AV%2C%20quiero%20armar%20mi%20hoodie%20personalizado">WhatsApp</a>
@@ -67,7 +78,7 @@
   <div class="hero-copy">
     <h1>Arma la tuya.<br><span class="c">Gira. Cambia.</span><br><span class="m">Pídela.</span></h1>
     <p>Hoodie oversized 3D, hecho desde cero y totalmente personalizable. Gíralo, elige tu color y pídelo por WhatsApp.</p>
-    <p class="hint">Arrastra para girar · Pellizca para acercar · Toca un color</p>
+    <p class="hint">Gira de lado a lado · Pellizca para acercar · Desliza hacia abajo para seguir viendo</p>
   </div>
   <div class="hero-controls">
     <div class="swatches" id="swatches"></div>
@@ -157,6 +168,8 @@ controls.autoRotate = true;
 controls.autoRotateSpeed = 1.2;
 controls.minDistance = 0.8;
 controls.maxDistance = 8;
+// En móvil: el deslizamiento vertical baja por la página, el horizontal gira el hoodie
+renderer.domElement.style.touchAction = 'pan-y';
 
 const sun = new THREE.DirectionalLight(0xffffff, 2.2);
 sun.position.set(3, 5, 2);
@@ -200,9 +213,10 @@ function installModel(model, msg) {
   });
   scene.add(model);
   const maxDim = Math.max(size.x, size.y, size.z);
-  const dist = maxDim * 1.9;
+  const isNarrow = stage.clientWidth < 500;
+  const dist = maxDim * (isNarrow ? 2.25 : 1.9);
   camera.position.set(dist * 0.35, maxDim * 0.95, dist);
-  controls.target.set(0, size.y * 0.45, 0);
+  controls.target.set(0, size.y * (isNarrow ? 0.30 : 0.45), 0);
   controls.update();
   ring.scale.setScalar(Math.max(size.x, size.z) * 0.75);
   statusEl.textContent = msg;
@@ -268,11 +282,13 @@ btnSonido.addEventListener('click', () => {
   if (!muted) blip();
 });
 
-// El hoodie real se sirve junto a esta página (misma carpeta en Vercel)
+// El hoodie real se sirve junto a esta página (misma carpeta en GitHub Pages)
 const loader = new GLTFLoader();
 loader.load('hoodie.glb', (gltf) => {
   installModel(gltf.scene, 'Hoodie real cargado. El color tiñe todo el modelo (base gris).');
-}, undefined, () => {
+}, (xhr) => {
+  if (xhr.total > 0) statusEl.textContent = 'Cargando el hoodie… ' + Math.round((xhr.loaded / xhr.total) * 100) + '%';
+}, () => {
   statusEl.textContent = 'No se pudo cargar el hoodie. Revisa tu conexión y recarga.';
 });
 
