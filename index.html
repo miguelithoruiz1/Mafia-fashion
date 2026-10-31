@@ -40,7 +40,7 @@
   .card h3 { font-size: 20px; }
   .card p { margin-top: 8px; font-size: 15px; line-height: 1.55; color: #cfcfd4; }
   .card .cta { display: block; margin-top: 16px; }
-  .mini-stage { height: 260px; margin-top: 16px; border-radius: 12px; overflow: hidden; background: #0a0a0c; }
+  .mini-stage { height: 320px; margin-top: 16px; border-radius: 12px; overflow: hidden; background: #1e1e24; border: 1px solid #2c2c31; }
   .mini-stage canvas { display: block; width: 100%; height: 100%; }
   .card .status { margin-top: 10px; }
   .badge { display: inline-block; margin-top: 12px; font-size: 12px; font-weight: 800; letter-spacing: .12em; color: #ff2ea6; text-transform: uppercase; }
@@ -60,7 +60,7 @@
     section { padding: 44px 18px; }
     .card { padding: 18px; }
     footer { padding: 24px 18px 32px; }
-    .mini-stage { height: 220px; }
+    .mini-stage { height: 280px; }
   }
 </style>
 <script type="importmap">
@@ -71,7 +71,7 @@
 </script>
 </head>
 <body>
-<!-- movil-v1.3 windbreaker-3d-v1 -->
+<!-- movil-v1.3 windbreaker-3d-v2 -->
 <header>
   <div class="brand">MAFIA FASHION <span class="av-c">A</span><span class="av-m">V</span></div>
   <a class="btn-wa" href="https://wa.me/573028454678?text=Hola%20Mafia%20Fashion%20AV%2C%20quiero%20armar%20mi%20hoodie%20personalizado">WhatsApp</a>
@@ -310,7 +310,7 @@ renderer2.toneMappingExposure = 1.05;
 stageWind.appendChild(renderer2.domElement);
 renderer2.domElement.style.touchAction = 'pan-y';
 const scene2 = new THREE.Scene();
-scene2.background = new THREE.Color(0x0a0a0c);
+scene2.background = new THREE.Color(0x1e1e24);
 const pmrem2 = new THREE.PMREMGenerator(renderer2);
 scene2.environment = pmrem2.fromScene(new RoomEnvironment(), 0.04).texture;
 const camera2 = new THREE.PerspectiveCamera(35, stageWind.clientWidth / stageWind.clientHeight, 0.1, 100);
@@ -322,7 +322,7 @@ controls2.autoRotate = true;
 controls2.autoRotateSpeed = 1.2;
 controls2.minDistance = 0.8;
 controls2.maxDistance = 8;
-const sun2 = new THREE.DirectionalLight(0xffffff, 2.2);
+const sun2 = new THREE.DirectionalLight(0xffffff, 2.6);
 sun2.position.set(3, 5, 2);
 scene2.add(sun2);
 const cyan2 = new THREE.PointLight(0x00e5ff, 12, 10);
@@ -341,7 +341,7 @@ function installWind(model) {
   model.position.y -= box.min.y;
   scene2.add(model);
   const maxDim = Math.max(size.x, size.y, size.z);
-  const dist = maxDim * (stageWind.clientWidth < 500 ? 2.25 : 1.9);
+  const dist = maxDim * 1.6;
   camera2.position.set(dist * 0.35, maxDim * 0.95, dist);
   controls2.target.set(0, size.y * 0.50, 0);
   controls2.update();
