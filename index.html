@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Mafia Fashion AV — Arma la tuya</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: #0a0a0c; color: #f2f2f0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; text-decoration: none; }
+  header { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; background: rgba(10,10,12,.82); backdrop-filter: blur(10px); border-bottom: 1px solid #1e1e22; }
+  .brand { font-weight: 900; letter-spacing: .18em; font-size: 15px; }
+  .brand .av-c { color: #00e5ff; }
+  .brand .av-m { color: #ff2ea6; }
+  .btn-wa { background: #f2f2f0; color: #0a0a0c; font-weight: 800; font-size: 14px; padding: 10px 16px; border-radius: 999px; white-space: nowrap; }
+  .hero { position: relative; height: 100svh; min-height: 560px; overflow: hidden; }
+  #stage { position: absolute; inset: 0; }
+  #stage canvas { display: block; width: 100%; height: 100%; }
+  .hero-copy { position: absolute; top: 18px; left: 20px; right: 20px; pointer-events: none; }
+  .hero-copy h1 { font-size: clamp(2.6rem, 13vw, 5rem); line-height: .95; font-weight: 900; letter-spacing: -.02em; text-shadow: 0 2px 24px rgba(0,0,0,.7); }
+  .hero-copy h1 .c { color: #00e5ff; }
+  .hero-copy h1 .m { color: #ff2ea6; }
+  .hero-copy p { margin-top: 12px; font-size: 16px; line-height: 1.45; color: #cfcfd4; max-width: 34ch; text-shadow: 0 1px 12px rgba(0,0,0,.8); }
+  .hero-copy .hint { margin-top: 8px; font-size: 13px; color: #9a9aa2; }
+  .hero-controls { position: absolute; left: 20px; right: 20px; bottom: 18px; display: flex; flex-direction: column; gap: 12px; }
+  .swatches { display: flex; gap: 10px; flex-wrap: wrap; }
+  .sw { width: 42px; height: 42px; border-radius: 50%; border: 2px solid rgba(255,255,255,.25); cursor: pointer; padding: 0; }
+  .sw.active { border-color: #fff; outline: 2px solid #00e5ff; outline-offset: 2px; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .pill { background: rgba(20,20,23,.85); color: #f2f2f0; border: 1px solid #2c2c31; font-size: 15px; font-weight: 700; padding: 11px 18px; border-radius: 999px; cursor: pointer; }
+  .cta { background: #f2f2f0; color: #0a0a0c; font-weight: 800; font-size: 16px; padding: 14px 22px; border-radius: 999px; text-align: center; }
+  .status { font-size: 13px; color: #9a9aa2; }
+  section { padding: 52px 20px; max-width: 720px; margin: 0 auto; }
+  .tag { font-size: 12px; font-weight: 800; letter-spacing: .22em; color: #00e5ff; text-transform: uppercase; }
+  h2 { font-size: clamp(1.8rem, 8vw, 2.6rem); line-height: 1.05; font-weight: 900; margin-top: 10px; }
+  .lead { margin-top: 12px; font-size: 16px; line-height: 1.6; color: #cfcfd4; }
+  .cards { display: grid; gap: 16px; margin-top: 22px; }
+  .card { background: #141417; border: 1px solid #26262b; border-radius: 18px; padding: 22px; }
+  .card h3 { font-size: 20px; }
+  .card p { margin-top: 8px; font-size: 15px; line-height: 1.55; color: #cfcfd4; }
+  .card .cta { display: block; margin-top: 16px; }
+  .badge { display: inline-block; margin-top: 12px; font-size: 12px; font-weight: 800; letter-spacing: .12em; color: #ff2ea6; text-transform: uppercase; }
+  .steps { display: grid; gap: 16px; margin-top: 22px; }
+  .step { display: flex; gap: 14px; background: #141417; border: 1px solid #26262b; border-radius: 16px; padding: 18px; }
+  .num { flex: 0 0 auto; width: 34px; height: 34px; border-radius: 50%; background: #00e5ff; color: #0a0a0c; font-weight: 900; display: flex; align-items: center; justify-content: center; }
+  .step p { font-size: 15px; line-height: 1.55; color: #cfcfd4; }
+  .step strong { color: #f2f2f0; }
+  .big-cta { display: block; text-align: center; margin-top: 22px; }
+  footer { padding: 28px 20px 40px; text-align: center; font-size: 13px; color: #9a9aa2; border-top: 1px solid #1e1e22; }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<header>
+  <div class="brand">MAFIA FASHION <span class="av-c">A</span><span class="av-m">V</span></div>
+  <a class="btn-wa" href="https://wa.me/573028454678?text=Hola%20Mafia%20Fashion%20AV%2C%20quiero%20armar%20mi%20hoodie%20personalizado">WhatsApp</a>
+</header>
+
+<div class="hero">
+  <div id="stage"></div>
+  <div class="hero-copy">
+    <h1>Arma la tuya.<br><span class="c">Gira. Cambia.</span><br><span class="m">Pídela.</span></h1>
+    <p>Hoodie oversized 3D, hecho desde cero y totalmente personalizable. Gíralo, elige tu color y pídelo por WhatsApp.</p>
+    <p class="hint">Arrastra para girar · Pellizca para acercar · Toca un color</p>
+  </div>
+  <div class="hero-controls">
+    <div class="swatches" id="swatches"></div>
+    <div class="row">
+      <button class="pill" id="btn-girar">Girar: ON</button>
+      <button class="pill" id="btn-sonido">Sonido: ON</button>
+    </div>
+    <a class="cta" href="https://wa.me/573028454678?text=Hola%20Mafia%20Fashion%20AV%2C%20quiero%20armar%20mi%20hoodie%20personalizado">Pedir por WhatsApp</a>
+    <div class="status" id="status">Cargando el hoodie…</div>
+  </div>
+</div>
+
+<section id="prendas">
+  <div class="tag">Prendas</div>
+  <h2>Hechas desde cero, a tu medida</h2>
+  <p class="lead">Sobre todo sudaderas, pero cualquier prenda a medida y totalmente personalizable, con buenos materiales. Sin local físico: todo se coordina por redes y WhatsApp.</p>
+  <div class="cards">
+    <div class="card">
+      <h3>Hoodie oversized</h3>
+      <span class="badge">El hero · Personalízalo arriba</span>
+      <p>Felpa gruesa premium, bolsillo canguro, capucha con cordones, puños y bajo acanalados. Elige el color en el visor 3D y confirma talla y detalles por WhatsApp.</p>
+      <a class="cta" href="https://wa.me/573028454678?text=Hola%20Mafia%20Fashion%20AV%2C%20me%20interesa%20el%20hoodie%20oversized%20personalizable">Pedir el hoodie</a>
+    </div>
+    <div class="card">
+      <h3>Windbreaker</h3>
+      <span class="badge">Segundo producto</span>
+      <p>Chaqueta ligera urbana, también a medida y personalizable. Pronto estará en 3D aquí mismo; por ahora se pide directo por WhatsApp.</p>
+      <a class="cta" href="https://wa.me/573028454678?text=Hola%20Mafia%20Fashion%20AV%2C%20me%20interesa%20la%20windbreaker">Pedir la windbreaker</a>
+    </div>
+  </div>
+</section>
+
+<section id="personaliza">
+  <div class="tag">Personaliza</div>
+  <h2>Así se arma la tuya</h2>
+  <div class="steps">
+    <div class="step"><div class="num">1</div><p><strong>Gira y elige el color.</strong> El visor 3D del hero te muestra el hoodie tal cual se va a ver.</p></div>
+    <div class="step"><div class="num">2</div><p><strong>Confirma por WhatsApp.</strong> Talla, detalles y estampado se acuerdan contigo antes de confeccionar.</p></div>
+    <div class="step"><div class="num">3</div><p><strong>Se hace a medida.</strong> Cada prenda se confecciona desde cero, con buenos materiales, solo para ti.</p></div>
+  </div>
+</section>
+
+<section id="marca">
+  <div class="tag">La marca</div>
+  <h2>Mafia Fashion AV</h2>
+  <p class="lead">Ropa urbana de Anita Vargas: prendas a medida, hechas desde cero y totalmente personalizables. Para adolescentes, jóvenes y toda la cultura streetwear, aunque se hacen todo tipo de prendas. Sin local físico, solo por redes.</p>
+</section>
+
+<section id="contacto">
+  <div class="tag">Contacto</div>
+  <h2>Pídelo por WhatsApp</h2>
+  <p class="lead">El canal de pedido es WhatsApp. Escríbenos con la prenda y el color que elegiste y coordinamos tu pedido a medida.</p>
+  <a class="cta big-cta" href="https://wa.me/573028454678?text=Hola%20Mafia%20Fashion%20AV%2C%20quiero%20armar%20mi%20prenda%20personalizada">Abrir WhatsApp</a>
+</section>
+
+<footer>
+  © 2026 Mafia Fashion AV · Hecho a medida · Prendas personalizables
+</footer>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+const statusEl = document.getElementById('status');
+const stage = document.getElementById('stage');
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(stage.clientWidth, stage.clientHeight);
+renderer.shadowMap.enabled = true;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+stage.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0a0a0c);
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+
+const camera = new THREE.PerspectiveCamera(35, stage.clientWidth / stage.clientHeight, 0.1, 100);
+camera.position.set(2.5, 1.5, 3.5);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.autoRotate = true;
+controls.autoRotateSpeed = 1.2;
+controls.minDistance = 0.8;
+controls.maxDistance = 8;
+
+const sun = new THREE.DirectionalLight(0xffffff, 2.2);
+sun.position.set(3, 5, 2);
+sun.castShadow = true;
+scene.add(sun);
+const cyan = new THREE.PointLight(0x00e5ff, 12, 10);
+cyan.position.set(-2.5, 1.5, 2);
+scene.add(cyan);
+const magenta = new THREE.PointLight(0xff2ea6, 12, 10);
+magenta.position.set(2.5, 1, -2);
+scene.add(magenta);
+
+const shadowPlane = new THREE.Mesh(
+  new THREE.PlaneGeometry(10, 10),
+  new THREE.ShadowMaterial({ opacity: 0.35 })
+);
+shadowPlane.rotation.x = -Math.PI / 2;
+shadowPlane.receiveShadow = true;
+scene.add(shadowPlane);
+const ring = new THREE.Mesh(
+  new THREE.TorusGeometry(1.05, 0.012, 12, 100),
+  new THREE.MeshBasicMaterial({ color: 0x00e5ff, transparent: true, opacity: 0.55 })
+);
+ring.rotation.x = Math.PI / 2;
+ring.position.y = 0.01;
+scene.add(ring);
+
+let modelMats = [];
+function installModel(model, msg) {
+  const box = new THREE.Box3().setFromObject(model);
+  const size = box.getSize(new THREE.Vector3());
+  const center = box.getCenter(new THREE.Vector3());
+  model.position.x -= center.x;
+  model.position.z -= center.z;
+  model.position.y -= box.min.y;
+  model.traverse((o) => {
+    if (o.isMesh) {
+      o.castShadow = true;
+      if (o.material && o.material.color) modelMats.push(o.material);
+    }
+  });
+  scene.add(model);
+  const maxDim = Math.max(size.x, size.y, size.z);
+  const dist = maxDim * 1.9;
+  camera.position.set(dist * 0.35, maxDim * 0.95, dist);
+  controls.target.set(0, size.y * 0.45, 0);
+  controls.update();
+  ring.scale.setScalar(Math.max(size.x, size.z) * 0.75);
+  statusEl.textContent = msg;
+}
+
+// Sonido sintetizado + mute (el primer toque desbloquea el audio)
+let audioCtx = null;
+let muted = false;
+function blip() {
+  if (muted) return;
+  try {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(660, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.08);
+    gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.12);
+    osc.connect(gain).connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.13);
+  } catch (e) {}
+}
+document.addEventListener('pointerdown', () => {
+  if (!muted && audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+}, { once: true });
+
+// Colores: tiñen todo el modelo (base gris del hoodie real)
+const COLORS = [
+  ['Negro', '#111114'], ['Blanco', '#f2f2f0'], ['Verde', '#1d5c3f'],
+  ['Rojo', '#c8102e'], ['Arena', '#c9a86a'], ['Cian', '#00e5ff'], ['Magenta', '#ff2ea6']
+];
+const swWrap = document.getElementById('swatches');
+COLORS.forEach(([name, hex], i) => {
+  const b = document.createElement('button');
+  b.className = 'sw' + (i === 0 ? ' active' : '');
+  b.style.background = hex;
+  b.title = name;
+  b.setAttribute('aria-label', 'Color ' + name);
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.sw').forEach((el) => el.classList.remove('active'));
+    b.classList.add('active');
+    modelMats.forEach((m) => m.color.set(hex));
+    blip();
+  });
+  swWrap.appendChild(b);
+});
+
+const btnGirar = document.getElementById('btn-girar');
+function setGirar(on) {
+  controls.autoRotate = on;
+  btnGirar.textContent = 'Girar: ' + (on ? 'ON' : 'OFF');
+}
+btnGirar.addEventListener('click', () => setGirar(!controls.autoRotate));
+controls.addEventListener('start', () => { if (controls.autoRotate) setGirar(false); });
+
+const btnSonido = document.getElementById('btn-sonido');
+btnSonido.addEventListener('click', () => {
+  muted = !muted;
+  btnSonido.textContent = 'Sonido: ' + (muted ? 'OFF' : 'ON');
+  if (!muted) blip();
+});
+
+// El hoodie real se sirve junto a esta página (misma carpeta en Vercel)
+const loader = new GLTFLoader();
+loader.load('hoodie.glb', (gltf) => {
+  installModel(gltf.scene, 'Hoodie real cargado. El color tiñe todo el modelo (base gris).');
+}, undefined, () => {
+  statusEl.textContent = 'No se pudo cargar el hoodie. Revisa tu conexión y recarga.';
+});
+
+window.addEventListener('resize', () => {
+  camera.aspect = stage.clientWidth / stage.clientHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(stage.clientWidth, stage.clientHeight);
+});
+(function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
+})();
+</script>
+</body>
+</html>
